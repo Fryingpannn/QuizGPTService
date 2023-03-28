@@ -2,6 +2,7 @@
 
 # Prerequisites
 
+- Sign up for [OpenAI](https://platform.openai.com/account/api-keys) and get your secret key. This is rotated periodically so needs to be updated.
 - Install Python
 - Install Flask `pip install Flask`
 - Install RabbitMQ `pip install pika`
@@ -63,6 +64,39 @@ MarkupSafe==2.0.1
 
 - The RabbitMQ service is deployed using CloudAMQP at https://api.cloudamqp.com/console/eabc96f0-a3bb-456b-b3f2-04b798d7e228/details. Messages inside can be managed from the console.
 - Ask Pan for the URL of this service.
+
+### RabbitMQ message formats:
+
+Receiving message format:
+
+- number: number of questions to generate
+- text: text to generate questions from
+- id: unique identifier for quiz
+- sender: has to be an allowed sender
+
+Sending message format:
+
+- id: unique identifier for quiz
+- number: number of questions generated
+- results: list of question-answer pairs
+- sender: has to be an allowed sender
+
+E.g.:
+
+```
+{
+    "id": 1,
+    "number": 3,
+    "text": "Data structures and algorithms. Medium difficulty.",
+    "sender": SENDER from env file
+}
+{
+    "id": 2,
+    "number": 3,
+    "text": "Vegetables and fruits. Medium difficulty.",
+    "sender": SENDER from env file
+}
+```
 
 # Notes
 

@@ -1,30 +1,3 @@
-'''
-RabbitMQ message formats:
-
-Receiving message format:
-- number: number of questions to generate
-- text: text to generate questions from
-- id: unique identifier for quiz
-
-Sending message format:
-- id: unique identifier for quiz
-- number: number of questions generated
-- results: list of question-answer pairs
-
-Test:
-{
-    "id": 1,
-    "number": 3,
-    "text": "Data structures and algorithms. Medium difficulty.",
-    "sender": SENDER from env file
-}
-{
-    "id": 2,
-    "number": 3,
-    "text": "Vegetables and fruits. Medium difficulty.",
-    "sender": SENDER
-}
-'''
 import os
 import json
 import pika
