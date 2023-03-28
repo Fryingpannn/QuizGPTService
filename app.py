@@ -42,8 +42,8 @@ def chatgpt_request(prompt, nb_questions, max_tokens=200):
         "temperature": 0.8,
     }
 
-    #if env == "dev":
-    return MOCK_RESPONSE
+    if env == "dev":
+        return MOCK_RESPONSE
     
     response = requests.post(CHATGPT_API_ENDPOINT, headers=headers, json=data)
     print("Response: ", response.json())
