@@ -7,7 +7,7 @@ import threading
 from utils import MOCK_RESPONSE, gpt_prompt, is_approved_sender
 
 app = Flask(__name__)
-env = os.environ.get("ENVIRONMENT")
+env = os.environ["ENVIRONMENT"]
 
 # RabbitMQ configurations
 RABBITMQ_HOST = "localhost" if env == "dev" else os.environ["RABBITMQ_HOSTNAME"]
@@ -16,6 +16,15 @@ OUTPUT_QUEUE = os.environ.get("OUTPUT_QUEUE", "output_queue")
 RABBITMQ_USER = "guest" if env == "dev" else os.environ["RABBITMQ_USER"]
 RABBITMQ_PASSWORD = "guest" if env == "dev" else os.environ["RABBITMQ_PASSWORD"]
 RABBITMQ_PORT = int(os.environ["RABBITMQ_PORT"])
+
+if env == "dev":
+    print("RABBITMQ_HOST: ", RABBITMQ_HOST)
+    print("INPUT_QUEUE: ", INPUT_QUEUE)
+    print("OUTPUT_QUEUE: ", OUTPUT_QUEUE)
+    print("RABBITMQ_USER: ", RABBITMQ_USER)
+    print("RABBITMQ_PASSWORD: ", RABBITMQ_PASSWORD)
+    print("RABBITMQ_PORT: ", RABBITMQ_PORT)
+
 
 # ChatGPT API configurations
 CHATGPT_API_KEY = os.environ.get("OPENAI_SECRET_KEY")
@@ -53,8 +62,12 @@ def chatgpt_request(prompt, nb_questions, max_tokens=200):
 def rabbitmq_connection():
     global GLOBAL_RMQ_CHANNEL
     print("Starting RabbitMQ connection.")
-    credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, port=RABBITMQ_PORT, virtual_host=RABBITMQ_USER, credentials=credentials))
+    if env == "dev":
+        print("Using dev RabbitMQ connection.")
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST))
+    else:
+        credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, port=RABBITMQ_PORT, virtual_host=RABBITMQ_USER, credentials=credentials))
     if connection.is_open:
         print(f"Successfully connected to RabbitMQ at {RABBITMQ_HOST}")
     else:
@@ -121,6 +134,7 @@ def start_consuming():
     GLOBAL_RMQ_CHANNEL.basic_qos(prefetch_count=1)
     GLOBAL_RMQ_CHANNEL.basic_consume(queue=INPUT_QUEUE, on_message_callback=callback)
     GLOBAL_RMQ_CHANNEL.start_consuming()
+    return "Consuming..."
 
 @app.route("/test")
 def test():
@@ -163,7 +177,7 @@ def list_inputq():
     temp_channel.close()
     return json.dumps(msgs)
 
-@app.route("force_start")
+@app.route("/forcestart")
 def force_start():
     err = start_consuming()
     return f"Started consuming. Error?: {err}"
@@ -180,5 +194,7 @@ def startup():
     rabbitmq_thread.start()
 
 if __name__ == "__main__":
+    print('Starting Flask app. Environment: ', env)
     if env == "dev":
+        print("In dev environment.")
         app.run(host="0.0.0.0", port=5000)
