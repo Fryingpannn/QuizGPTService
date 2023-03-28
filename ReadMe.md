@@ -52,7 +52,7 @@ MarkupSafe==2.0.1
 - Dashboard: https://vercel.com/fryingpannn/quizgpt-service
 - To redeploy, make changes and `vercel --prod`.
 
-  ----- PYTHONANYWHERE DOESN'T WORK WITH NON-PUBLIC APIs -> Switched to Vercel
+------- PYTHONANYWHERE DOESN'T WORK WITH NON-PUBLIC APIs -> Use the Vercel deployed URL.
 
 - The Python app is deployed using PythonAnywhere at http://fryingpannn.pythonanywhere.com/
   - https://www.pythonanywhere.com/user/fryingpannn/webapps/#tab_id_fryingpannn_pythonanywhere_com
