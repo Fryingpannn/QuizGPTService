@@ -41,6 +41,19 @@ RabbitMQ dashboard to manage messages:
 
 ## Python Flask App
 
+- Python app deployed with Vercel at https://quizgpt-service.vercel.app/
+- For this to work, need the following versions installed:
+
+```
+Flask==1.1.4
+MarkupSafe==2.0.1
+```
+
+- Dashboard: https://vercel.com/fryingpannn/quizgpt-service
+- To redeploy, make changes and `vercel --prod`.
+
+  ----- PYTHONANYWHERE DOESN'T WORK WITH NON-PUBLIC APIs -> Switched to Vercel
+
 - The Python app is deployed using PythonAnywhere at http://fryingpannn.pythonanywhere.com/
   - https://www.pythonanywhere.com/user/fryingpannn/webapps/#tab_id_fryingpannn_pythonanywhere_com
   - Files must be changed directly from within the dashboard source code.

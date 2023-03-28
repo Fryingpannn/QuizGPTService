@@ -156,7 +156,7 @@ def test():
     print(response)
     finalr = parse_qa_pairs(response)
     print(finalr)
-    return finalr
+    return json.dumps(finalr)
 
 @app.route('/outputq')
 def list_outputq():
@@ -172,7 +172,7 @@ def list_outputq():
         else: break
     temp_channel.cancel()
     temp_channel.close()
-    return msgs
+    return json.dumps(msgs)
 
 @app.route('/inputq')
 def list_inputq():
@@ -188,11 +188,11 @@ def list_inputq():
         else: break
     temp_channel.cancel()
     temp_channel.close()
-    return msgs
+    return json.dumps(msgs)
 
 @app.route("/")
 def home():
-    return "Question GPT Service is now running."
+    return "<h1>Question GPT Service is now running.</h1>"
 
 # Go to root home page to start the connection with rabbitmq
 @app.before_first_request
