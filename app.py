@@ -116,7 +116,7 @@ def start_consuming():
     rabbitmq_connection()
     if GLOBAL_RMQ_CHANNEL is None:
         print("Error connecting to input queue. Exiting...")
-        return
+        return "Channel is None"
     else: print('RabbitMQ connection established and channel created. Starting to consume...')
     GLOBAL_RMQ_CHANNEL.basic_qos(prefetch_count=1)
     GLOBAL_RMQ_CHANNEL.basic_consume(queue=INPUT_QUEUE, on_message_callback=callback)
@@ -162,6 +162,11 @@ def list_inputq():
     temp_channel.cancel()
     temp_channel.close()
     return json.dumps(msgs)
+
+@app.route("force_start")
+def force_start():
+    err = start_consuming()
+    return f"Started consuming. Error?: {err}"
 
 @app.route("/")
 def home():

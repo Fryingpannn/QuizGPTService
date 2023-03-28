@@ -51,7 +51,7 @@ MarkupSafe==2.0.1
 ```
 
 - Dashboard: https://vercel.com/fryingpannn/quizgpt-service
-- To redeploy, make changes and `vercel --prod`.
+- To redeploy, push changes to the repo or `vercel --prod`.
 
 ------- PYTHONANYWHERE DOESN'T WORK WITH NON-PUBLIC APIs -> Use the Vercel deployed URL.
 
