@@ -54,7 +54,7 @@ def chatgpt_request(prompt, nb_questions, max_tokens=200):
     if env == "dev":
         return MOCK_RESPONSE
     
-    response = requests.post(CHATGPT_API_ENDPOINT, headers=headers, json=data)
+    response = requests.post(CHATGPT_API_ENDPOINT, headers=headers, json=data, timeout=7)
     print("Response: ", response.json())
     response.raise_for_status()
     return response.json()["choices"][0]["message"]["content"].strip()

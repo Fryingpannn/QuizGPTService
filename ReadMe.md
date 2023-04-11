@@ -3,6 +3,7 @@
 # Prerequisites
 
 - Sign up for [OpenAI](https://platform.openai.com/account/api-keys) and get your secret key. This is rotated periodically so needs to be updated.
+- Recommended to instead use a Python virtual environment. Download the following dependencies with `requirements.txt` instead. Else:
 - Install Python
 - Install Flask `pip install Flask`
 - Install RabbitMQ `pip install pika`
