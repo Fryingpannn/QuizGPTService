@@ -147,35 +147,43 @@ def test():
 
 @app.route('/outputq')
 def list_outputq():
-    credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
-    temp_connect = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, virtual_host=RABBITMQ_USER, credentials=credentials))
-    temp_channel = temp_connect.channel()
-    temp_channel.queue_declare(queue=OUTPUT_QUEUE)
-    msgs = []
-    while True:
-        method_frame, header_frame, body = temp_channel.basic_get(queue=OUTPUT_QUEUE, auto_ack=False)
-        if method_frame:
-            msgs.append(json.loads(body))
-        else: break
-    temp_channel.cancel()
-    temp_channel.close()
-    return json.dumps(msgs)
+    try:
+        credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
+        temp_connect = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, virtual_host=RABBITMQ_USER, credentials=credentials))
+        temp_channel = temp_connect.channel()
+        temp_channel.queue_declare(queue=OUTPUT_QUEUE)
+        msgs = []
+        while True:
+            method_frame, header_frame, body = temp_channel.basic_get(queue=OUTPUT_QUEUE, auto_ack=False)
+            if method_frame:
+                msgs.append(json.loads(body))
+            else: break
+        temp_channel.cancel()
+        temp_channel.close()
+        return json.dumps(msgs)
+    except Exception as e:
+        print(e)
+        return json.dumps('Error occured')
 
 @app.route('/inputq')
 def list_inputq():
-    credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
-    temp_connect = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, virtual_host=RABBITMQ_USER, credentials=credentials))
-    temp_channel = temp_connect.channel()
-    temp_channel.queue_declare(queue=INPUT_QUEUE)
-    msgs = []
-    while True:
-        method_frame, header_frame, body = temp_channel.basic_get(queue=INPUT_QUEUE, auto_ack=False)
-        if method_frame:
-            msgs.append(json.loads(body))
-        else: break
-    temp_channel.cancel()
-    temp_channel.close()
-    return json.dumps(msgs)
+    try:
+        credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
+        temp_connect = pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, virtual_host=RABBITMQ_USER, credentials=credentials))
+        temp_channel = temp_connect.channel()
+        temp_channel.queue_declare(queue=INPUT_QUEUE)
+        msgs = []
+        while True:
+            method_frame, header_frame, body = temp_channel.basic_get(queue=INPUT_QUEUE, auto_ack=False)
+            if method_frame:
+                msgs.append(json.loads(body))
+            else: break
+        temp_channel.cancel()
+        temp_channel.close()
+        return json.dumps(msgs)
+    except Exception as e:
+        print(e)
+        return json.dumps('Error occured')
 
 @app.route("/forcestart")
 def force_start():
