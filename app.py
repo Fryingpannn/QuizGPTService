@@ -95,7 +95,7 @@ def callback(ch, method, properties, body):
     try:
         message = json.loads(body)
         print(message)
-        quiz_id = message["id"]
+        quiz_id = message["conversationId"]
         number = message.get("number",0)
         text = message.get("text","")
         sender = message.get("sender","")
@@ -111,7 +111,7 @@ def callback(ch, method, properties, body):
 
         # Add message back to the queue
         response_message = {
-            "id": quiz_id,
+            "conversationId": quiz_id,
             "number": number,
             "results": formatted_qa
         }
