@@ -40,24 +40,27 @@ global GLOBAL_RMQ_CHANNEL
 GLOBAL_RMQ_CHANNEL = None
 
 def chatgpt_request(prompt, nb_questions, max_tokens=200):
-    final_prompt = gpt_prompt(prompt, nb_questions)
-    data = {
-        "model": "gpt-3.5-turbo-0301",
-        "messages": [
-            {"role": "user", "content": final_prompt}
-        ],
-        "max_tokens": max_tokens,
-        "n": 1,
-        "temperature": 0.8,
-    }
+    try:
+        final_prompt = gpt_prompt(prompt, nb_questions)
+        data = {
+            "model": "gpt-3.5-turbo-0301",
+            "messages": [
+                {"role": "user", "content": final_prompt}
+            ],
+            "max_tokens": max_tokens,
+            "n": 1,
+            "temperature": 0.8,
+        }
 
-    if env == "dev":
-        return MOCK_RESPONSE
-    
-    response = requests.post(CHATGPT_API_ENDPOINT, headers=headers, json=data, timeout=7)
-    print("Response: ", response.json())
-    response.raise_for_status()
-    return response.json()["choices"][0]["message"]["content"].strip()
+        if env == "dev":
+            return MOCK_RESPONSE
+        
+        response = requests.post(CHATGPT_API_ENDPOINT, headers=headers, json=data, timeout=7)
+        print("Response: ", response.json())
+        response.raise_for_status()
+        return response.json()["choices"][0]["message"]["content"].strip()
+    except Exception as e:
+        print("Error occured while sending request to ChatGPT API: ", e)
 
 def rabbitmq_connection():
     global GLOBAL_RMQ_CHANNEL
@@ -105,6 +108,9 @@ def callback(ch, method, properties, body):
             return
 
         generated_text = chatgpt_request(text, number)
+        if generated_text is None:
+            print("Error generating text.")
+            return
         print('Generated text---\n',generated_text)
         # Parse questions and answers
         formatted_qa = parse_qa_pairs(generated_text)
@@ -125,25 +131,34 @@ def callback(ch, method, properties, body):
         ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
 
 def start_consuming():
-    global GLOBAL_RMQ_CHANNEL
-    rabbitmq_connection()
-    if GLOBAL_RMQ_CHANNEL is None:
-        print("Error connecting to input queue. Exiting...")
-        return "Channel is None"
-    else: print('RabbitMQ connection established and channel created. Starting to consume...')
-    GLOBAL_RMQ_CHANNEL.basic_qos(prefetch_count=1)
-    GLOBAL_RMQ_CHANNEL.basic_consume(queue=INPUT_QUEUE, on_message_callback=callback)
-    GLOBAL_RMQ_CHANNEL.start_consuming()
-    return "Consuming..."
+    try:
+        global GLOBAL_RMQ_CHANNEL
+        rabbitmq_connection()
+        if GLOBAL_RMQ_CHANNEL is None:
+            print("Error connecting to input queue. Exiting...")
+            return "Channel is None"
+        else: print('RabbitMQ connection established and channel created. Starting to consume...')
+        GLOBAL_RMQ_CHANNEL.basic_qos(prefetch_count=1)
+        GLOBAL_RMQ_CHANNEL.basic_consume(queue=INPUT_QUEUE, on_message_callback=callback)
+        GLOBAL_RMQ_CHANNEL.start_consuming()
+        return "Consuming..."
+    except Exception as e:
+        print('Error occured durring consuming')
+        print(e)
+
 
 @app.route("/test")
 def test():
-    test_prompt = 'Algorithm and data structures. Medium difficulty.'
-    response = chatgpt_request(test_prompt, 2)
-    print(response)
-    finalr = parse_qa_pairs(response)
-    print(finalr)
-    return json.dumps(finalr)
+    try:
+        test_prompt = 'Algorithm and data structures. Medium difficulty.'
+        response = chatgpt_request(test_prompt, 2)
+        print(response)
+        finalr = parse_qa_pairs(response)
+        print(finalr)
+        return json.dumps([finalr])
+    except Exception as e:
+        print(e)
+        return json.dumps(['Error occured'])
 
 @app.route('/outputq')
 def list_outputq():
@@ -163,7 +178,7 @@ def list_outputq():
         return json.dumps(msgs)
     except Exception as e:
         print(e)
-        return json.dumps('Error occured')
+        return json.dumps(['Error occured'])
 
 @app.route('/inputq')
 def list_inputq():
@@ -183,12 +198,16 @@ def list_inputq():
         return json.dumps(msgs)
     except Exception as e:
         print(e)
-        return json.dumps('Error occured')
+        return json.dumps(['Error occured'])
 
 @app.route("/forcestart")
 def force_start():
-    err = start_consuming()
-    return f"Started consuming. Error?: {err}"
+    try:
+        err = start_consuming()
+        return f"Started consuming. Error?: {err}"
+    except Exception as e:
+        print(e)
+        return json.dumps(['Error occured'])
 
 @app.route("/")
 def home():
