@@ -244,12 +244,12 @@ def home():
 #     print('Starting RabbitMQ thread')
 #     rabbitmq_thread = threading.Thread(target=start_consuming)
 #     rabbitmq_thread.start()
+print('Starting Flask app. Environment: ', env)
+print('Starting RabbitMQ thread')
+app.logger.info('Logging test')
+rabbitmq_thread = threading.Thread(target=start_consuming)
+rabbitmq_thread.start()
 if __name__ == "__main__":
-    print('Starting Flask app. Environment: ', env)
-    print('Starting RabbitMQ thread')
-    app.logger.info('Logging test')
-    rabbitmq_thread = threading.Thread(target=start_consuming)
-    rabbitmq_thread.start()
     if env == "dev":
         print("In dev environment.")
         app.run(debug=True)
